@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VoxPop</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin: 12px 0; }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    input, select { padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; }
+    button { padding: 10px 14px; border: 0; border-radius: 10px; cursor: pointer; }
+    button.primary { background: #111827; color: white; }
+    .tag { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid #d1d5db; }
+    .muted { color: #6b7280; font-size: 12px; }
+    .pagination a { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <h1>VoxPop</h1>
+  <p class="muted">Public comment board (no auth, no DB). Your voice is amplified.</p>
+
+  <div class="card">
+    <form method="post" action="/ui/comments">
+      <div class="row">
+        <input name="text" placeholder="Write your comment..." style="flex:1; min-width: 240px;" required maxlength="500" />
+        <select name="category" required>
+          <option value="positive">positive</option>
+          <option value="negative">negative</option>
+        </select>
+        <button class="primary" type="submit">Post</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="row">
+    <form method="get" action="/ui" class="row">
+      <input type="hidden" name="page" value="1" />
+      <input type="hidden" name="limit" value="{{ limit }}" />
+      <select name="category">
+        <option value="" {% if not category %}selected{% endif %}>all</option>
+        <option value="positive" {% if category == "positive" %}selected{% endif %}>positive</option>
+        <option value="negative" {% if category == "negative" %}selected{% endif %}>negative</option>
+      </select>
+      <button type="submit">Filter</button>
+    </form>
+  </div>
+
+  <h2>Public feed</h2>
+
+  {% for c in items %}
+    <div class="card">
+      <div class="row">
+        <span class="tag">{{ c.category.value }}</span>
+        <span class="muted">#{{ c.id }} • {{ c.created_at }}</span>
+      </div>
+      <p>{{ c.text }}</p>
+    </div>
+  {% endfor %}
+
+  <div class="pagination">
+    {% if page > 1 %}
+      <a href="/ui?page={{ page-1 }}&limit={{ limit }}{% if category %}&category={{ category }}{% endif %}">← Prev</a>
+    {% endif %}
+
+    <span class="muted">Page {{ page }} / {{ total_pages }} (total: {{ total }})</span>
+
+    {% if page < total_pages %}
+      <a href="/ui?page={{ page+1 }}&limit={{ limit }}{% if category %}&category={{ category }}{% endif %}">Next →</a>
+    {% endif %}
+  </div>
+
+  <hr />
+  <p class="muted">API docs: <a href="/docs">/docs</a></p>
+</body>
+</html>
