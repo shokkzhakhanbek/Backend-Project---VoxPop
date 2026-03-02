@@ -13,4 +13,4 @@ app.include_router(ui_router)
 
 @app.get("/")
 def root():
-    return {"message": "VoxPop API is running. Go to /docs or /ui"}
+    return {"message": "VoxPop API is running need to go to /docs or /ui"}
